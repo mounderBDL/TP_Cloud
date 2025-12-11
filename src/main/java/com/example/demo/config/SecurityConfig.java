@@ -27,14 +27,22 @@ public class SecurityConfig {
         );
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // allow login/register/forgot-password
-                .requestMatchers("/api/password/**").permitAll()
-                .requestMatchers("/api/demandes/create/**")
-                    .hasAnyRole("GESTIONNAIRE", "TRAVAILLEUR", "ENSEIGNANT", "ETUDIANT")
-                .requestMatchers("/api/demandes/pending").hasRole("ADMIN")
-                .requestMatchers("/api/demandes/approve/**").hasRole("ADMIN")
-                .requestMatchers("/api/demandes/reject/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
+            // PUBLIC WEBPAGES
+            .requestMatchers("/", "/home", "/login", "/register", "/css/**", "/js/**").permitAll()
+
+            // PUBLIC API
+            .requestMatchers("/api/auth/**").permitAll()
+            .requestMatchers("/api/password/**").permitAll()
+
+            // ROLE-BASED PERMISSIONS
+            .requestMatchers("/api/demandes/create/**")
+                .hasAnyRole("GESTIONNAIRE", "TRAVAILLEUR", "ENSEIGNANT", "ETUDIANT")
+            .requestMatchers("/api/demandes/pending").hasRole("ADMIN")
+            .requestMatchers("/api/demandes/approve/**").hasRole("ADMIN")
+            .requestMatchers("/api/demandes/reject/**").hasRole("ADMIN")
+
+            // EVERYTHING ELSE AUTHENTICATED
+            .anyRequest().authenticated()
         );
 
         // Add JWT filter before Spring Security’s default authentication filter

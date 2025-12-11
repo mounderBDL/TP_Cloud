@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layouts/base :: layout(~{::body})">
+
+<body class="bg-gray-100">
+
+<div class="flex">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 min-h-screen bg-gray-900 text-white">
+        <div class="p-6 text-2xl font-bold border-b border-gray-700">
+            Admin Panel
+        </div>
+
+        <nav class="p-4 space-y-3">
+
+            <a href="/admin/dashboard"
+               class="block px-4 py-2 rounded hover:bg-gray-700">
+                Dashboard
+            </a>
+
+            <a href="/admin/pending-requests"
+               class="block px-4 py-2 rounded bg-gray-800 hover:bg-gray-700">
+                Pending Requests
+            </a>
+
+            <button id="logoutBtn"
+                    class="w-full text-left px-4 py-2 rounded hover:bg-red-600 mt-10">
+                Logout
+            </button>
+        </nav>
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 p-8">
+
+        <h1 class="text-3xl font-semibold text-gray-800 mb-6">
+            Pending Registration Requests
+        </h1>
+
+        <!-- TABLE -->
+        <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+
+            <table class="min-w-full">
+                <thead class="bg-gray-200 text-gray-700">
+                <tr>
+                    <th class="py-3 px-4 text-left">ID</th>
+                    <th class="py-3 px-4 text-left">Name</th>
+                    <th class="py-3 px-4 text-left">Email</th>
+                    <th class="py-3 px-4 text-left">Role</th>
+                    <th class="py-3 px-4 text-center">Actions</th>
+                </tr>
+                </thead>
+
+                <tbody id="tableBody"></tbody>
+            </table>
+
+        </div>
+
+    </main>
+</div>
+
+<!-- Reject Modal -->
+<div id="rejectModal"
+     class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center">
+
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 class="text-xl font-semibold mb-4">Reject Request</h2>
+
+        <textarea id="rejectComment"
+                  class="w-full border rounded p-2"
+                  placeholder="Reason for rejection..."></textarea>
+
+        <div class="flex justify-end mt-4 space-x-3">
+            <button onclick="closeModal()"
+                    class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+
+            <button id="confirmRejectBtn"
+                    class="px-4 py-2 bg-red-600 text-white rounded">
+                Reject
+            </button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- SCRIPT -->
+<script>
+const token = localStorage.getItem("token");
+const role = localStorage.getItem("role");
+
+if (!token || role !== "ADMIN") {
+    window.location.href = "/login";
+}
+
+const headers = {
+    "Authorization": "Bearer " + token,
+    "Content-Type": "application/json"
+};
+
+const tableBody = document.getElementById("tableBody");
+
+let selectedUserId = null;
+
+// ------------------------
+// LOAD PENDING REQUESTS
+// ------------------------
+function loadRequests() {
+    fetch("/api/admin/pending", { headers })
+        .then(res => res.json())
+        .then(data => {
+            tableBody.innerHTML = "";
+
+            data.forEach(user => {
+                tableBody.innerHTML += `
+                    <tr class="border-b">
+                        <td class="py-3 px-4">${user.id}</td>
+                        <td class="py-3 px-4">${user.nom} ${user.prenom}</td>
+                        <td class="py-3 px-4">${user.email}</td>
+                        <td class="py-3 px-4">${user.role}</td>
+                        <td class="py-3 px-4 text-center flex gap-2 justify-center">
+
+                            <button onclick="approve(${user.id})"
+                                class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">
+                                Approve
+                            </button>
+
+                            <button onclick="openRejectModal(${user.id})"
+                                class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
+                                Reject
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        });
+}
+
+loadRequests();
+
+
+// ------------------------
+// APPROVE USER
+// ------------------------
+function approve(id) {
+    fetch(`/api/admin/approve/${id}`, {
+        method: "POST",
+        headers
+    })
+        .then(res => res.text())
+        .then(msg => {
+            alert(msg);
+            loadRequests();
+        });
+}
+
+
+// ------------------------
+// REJECT USER
+// ------------------------
+function openRejectModal(id) {
+    selectedUserId = id;
+    document.getElementById("rejectModal").classList.remove("hidden");
+}
+
+function closeModal() {
+    document.getElementById("rejectModal").classList.add("hidden");
+}
+
+document.getElementById("confirmRejectBtn").onclick = function () {
+    const comment = document.getElementById("rejectComment").value;
+
+    if (comment.trim() === "") {
+        alert("Please enter a comment");
+        return;
+    }
+
+    fetch(`/api/admin/reject/${selectedUserId}`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(comment)
+    })
+        .then(res => res.text())
+        .then(msg => {
+            alert(msg);
+            closeModal();
+            loadRequests();
+        });
+};
+
+
+// ------------------------
+// LOGOUT
+// ------------------------
+document.getElementById("logoutBtn").onclick = function () {
+    localStorage.clear();
+    window.location.href = "/login";
+};
+</script>
+
+</body>
+</html>

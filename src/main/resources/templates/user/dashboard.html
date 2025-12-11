@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layouts/base :: layout(~{::body})">
+
+<body class="bg-gray-100">
+
+<div class="flex">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 min-h-screen bg-gray-900 text-white">
+        <div class="p-6 text-2xl font-bold border-b border-gray-700">
+            User Panel
+        </div>
+
+        <nav class="p-4 space-y-3">
+
+            <a href="/user/dashboard" 
+               class="block px-4 py-2 rounded bg-gray-800 hover:bg-gray-700">
+                Dashboard
+            </a>
+
+            <!-- OPTIONS: role-specific -->
+            <div id="roleMenu"></div>
+
+            <button id="logoutBtn"
+               class="w-full text-left px-4 py-2 rounded hover:bg-red-600 mt-10">
+                Logout
+            </button>
+
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 p-8">
+
+        <!-- HEADER -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-semibold text-gray-800">
+                Welcome, <span id="userName"></span>
+            </h1>
+            <span id="userRole" class="text-lg text-gray-600"></span>
+        </div>
+
+        <!-- GENERAL CARDS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div class="p-6 bg-white shadow-lg rounded-xl border-l-4 border-blue-500">
+                <h2 class="text-xl font-semibold text-gray-700">Profile Information</h2>
+                <p class="text-gray-600 mt-2">Review your personal details.</p>
+            </div>
+
+            <div class="p-6 bg-white shadow-lg rounded-xl border-l-4 border-green-500">
+                <h2 class="text-xl font-semibold text-gray-700">Notifications</h2>
+                <p class="text-gray-600 mt-2">Check updates and system messages.</p>
+            </div>
+
+        </div>
+
+        <!-- ROLE-SPECIFIC SECTION -->
+        <h2 class="text-2xl font-semibold text-gray-800 mt-10 mb-4">
+            Your Tools
+        </h2>
+
+        <div id="roleCards" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+
+    </main>
+
+</div>
+
+
+<!-- SCRIPT -->
+<script>
+const nom = localStorage.getItem("nom");
+const prenom = localStorage.getItem("prenom");
+const role = localStorage.getItem("role");
+const token = localStorage.getItem("token");
+
+// Check authentication
+if (!token) {
+    window.location.href = "/login";
+}
+
+document.getElementById("userName").innerText = nom + " " + prenom;
+document.getElementById("userRole").innerText = "Role: " + role;
+
+// ----- Role-based menu and cards -----
+
+const roleMenu = document.getElementById("roleMenu");
+const roleCards = document.getElementById("roleCards");
+
+function addMenuItem(label) {
+    roleMenu.innerHTML += `
+        <a class="block px-4 py-2 rounded hover:bg-gray-700">${label}</a>
+    `;
+}
+
+function addCard(title, desc, color) {
+    roleCards.innerHTML += `
+        <div class="p-6 bg-white shadow-lg rounded-xl border-l-4 ${color}">
+            <h3 class="text-xl font-semibold">${title}</h3>
+            <p class="text-gray-600 mt-2">${desc}</p>
+        </div>
+    `;
+}
+
+switch(role) {
+
+    case "ETUDIANT":
+        addMenuItem("My Courses");
+        addCard("My Courses", "View your enrolled modules.", "border-blue-500");
+        addCard("Absence Justification", "Upload justification documents.", "border-green-500");
+        break;
+
+    case "ENSEIGNANT":
+        addMenuItem("My Classes");
+        addMenuItem("Submit Reports");
+
+        addCard("Class Management",
+                "Manage groups, schedules, and student progress.",
+                "border-purple-500");
+        addCard("Report Submission",
+                "Upload official reports to the administration.",
+                "border-green-500");
+        break;
+
+    case "TRAVAILLEUR":
+        addMenuItem("Services");
+        addCard("Service Requests",
+                "View your assigned administrative tasks.",
+                "border-indigo-500");
+        break;
+
+    case "GESTIONNAIRE":
+        addMenuItem("Manage Students");
+        addMenuItem("Manage Teachers");
+
+        addCard("Account Management",
+                "View and manage all registered users.",
+                "border-orange-500");
+        addCard("Internal Reports",
+                "Generate reports for the administration.",
+                "border-blue-500");
+        break;
+}
+
+document.getElementById("logoutBtn").onclick = function () {
+    localStorage.clear();
+    window.location.href = "/login";
+};
+</script>
+
+</body>
+</html>

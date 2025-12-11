@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layouts/base :: content">
+
+<div>
+
+    <h2 class="text-2xl font-semibold text-primary mb-6">Create Account</h2>
+
+    <!-- Success message -->
+    <div id="successBox"
+         class="hidden mb-4 p-3 bg-green-100 text-green-700 border border-green-300 rounded-md"></div>
+
+    <!-- Error message -->
+    <div id="errorBox"
+         class="hidden mb-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded-md"></div>
+
+    <!-- Registration Form -->
+    <form id="registerForm" class="space-y-5">
+
+        <div>
+            <label class="font-medium">First Name</label>
+            <input type="text" id="prenom" required
+                   class="w-full mt-1 p-3 border rounded-lg focus:ring-primary focus:border-primary" />
+        </div>
+
+        <div>
+            <label class="font-medium">Last Name</label>
+            <input type="text" id="nom" required
+                   class="w-full mt-1 p-3 border rounded-lg focus:ring-primary focus:border-primary" />
+        </div>
+
+        <div>
+            <label class="font-medium">Email</label>
+            <input type="email" id="email" required
+                   class="w-full mt-1 p-3 border rounded-lg focus:ring-primary focus:border-primary" />
+        </div>
+
+        <div>
+            <label class="font-medium">Password</label>
+            <input type="password" id="password" required
+                   class="w-full mt-1 p-3 border rounded-lg focus:ring-primary focus:border-primary" />
+        </div>
+
+        <div>
+            <label class="font-medium">Role</label>
+            <select id="role" required
+                    class="w-full mt-1 p-3 border rounded-lg bg-white focus:ring-primary focus:border-primary">
+
+                <option value="">-- Select Role --</option>
+                <option value="GESTIONNAIRE">Gestionnaire</option>
+                <option value="TRAVAILLEUR">Travailleur</option>
+                <option value="ENSEIGNANT">Enseignant</option>
+                <option value="ETUDIANT">Étudiant</option>
+            </select>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-primary text-white py-3 rounded-lg hover:bg-indigo-700">
+            Register
+        </button>
+    </form>
+
+</div>
+
+<!-- AJAX SCRIPT -->
+<script>
+document.getElementById("registerForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const nom = document.getElementById("nom").value;
+    const prenom = document.getElementById("prenom").value;
+    const email = document.getElementById("email").value;
+    const motDePasse = document.getElementById("password").value;
+    const role = document.getElementById("role").value;
+
+    const errorBox = document.getElementById("errorBox");
+    const successBox = document.getElementById("successBox");
+
+    try {
+        const response = await fetch("http://localhost:8080/api/auth/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ nom, prenom, email, motDePasse, role })
+        });
+
+        const message = await response.text();
+
+        if (!response.ok || message.includes("exists")) {
+            throw new Error(message);
+        }
+
+        successBox.textContent = "Registration submitted! Wait for admin approval.";
+        successBox.classList.remove("hidden");
+        errorBox.classList.add("hidden");
+
+        // Redirect after 2 seconds
+        setTimeout(() => {
+            window.location.href = "/login";
+        }, 2000);
+
+    } catch (err) {
+        errorBox.textContent = err.message;
+        errorBox.classList.remove("hidden");
+        successBox.classList.add("hidden");
+    }
+});
+</script>
+
+</html>

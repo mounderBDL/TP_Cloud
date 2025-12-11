@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin
@@ -131,5 +133,18 @@ public class AuthController {
 
         return "Password updated successfully";
     }
+
+    @GetMapping("/me")
+    public Utilisateur getCurrentUser(@RequestHeader("Authorization") String token) {
+
+        token = token.replace("Bearer ", ""); // clean token
+
+        String email = jwtUtil.getEmailFromToken(token);
+
+        return utilisateurRepository.findByEmail(email).orElse(null);
+    }
+
+
+
 }
 

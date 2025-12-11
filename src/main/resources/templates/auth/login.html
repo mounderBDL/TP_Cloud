@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layouts/base :: content">
+
+<div>
+
+    <h2 class="text-2xl font-semibold text-primary mb-6">Login</h2>
+
+    <!-- Error message -->
+    <div id="errorBox" class="hidden mb-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded-md"></div>
+
+    <!-- Login Form -->
+    <form id="loginForm" class="space-y-5">
+
+        <div>
+            <label class="font-medium">Email</label>
+            <input type="email" id="email" required
+                   class="w-full mt-1 p-3 border rounded-lg focus:ring-primary focus:border-primary">
+        </div>
+
+        <div>
+            <label class="font-medium">Password</label>
+            <input type="password" id="password" required
+                   class="w-full mt-1 p-3 border rounded-lg focus:ring-primary focus:border-primary">
+        </div>
+
+        <button type="submit"
+                class="w-full bg-primary text-white py-3 rounded-lg hover:bg-indigo-700">
+            Login
+        </button>
+    </form>
+
+</div>
+
+<!-- AJAX LOGIN SCRIPT -->
+<script>
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const motDePasse = document.getElementById("password").value;
+
+    try {
+        const response = await fetch("http://localhost:8080/api/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, motDePasse })
+        });
+
+        if (!response.ok) {
+            throw new Error("Invalid credentials");
+        }
+
+        const data = await response.json();
+
+        // Save JWT + user info in localStorage
+        localStorage.setItem("jwt", data.token);
+        localStorage.setItem("role", data.role);
+        localStorage.setItem("nom", data.nom);
+        localStorage.setItem("prenom", data.prenom);
+
+        // Redirect based on role
+        if (data.role === "ADMIN") {
+            window.location.href = "/admin/dashboard";
+        } else {
+            window.location.href = "/user/dashboard";
+        }
+
+    } catch (err) {
+        const box = document.getElementById("errorBox");
+        box.textContent = "Invalid email or password";
+        box.classList.remove("hidden");
+    }
+});
+</script>
+
+</html>
