@@ -27,6 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("Account not approved");
         }
 
+
         return new User(
                 user.getEmail(),
                 user.getMotDePasse(),

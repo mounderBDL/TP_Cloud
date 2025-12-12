@@ -67,6 +67,8 @@ public class AdminController {
             "Registration Rejected",
             "Your registration request was rejected.\n\nReason:\n" + comment
         );
+
+        utilisateurRepository.deleteById(id);
         
         return "Account rejected";
     }

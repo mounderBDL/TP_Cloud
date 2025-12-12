@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      th:replace="layouts/base :: content">
+      th:replace="~{layouts/base :: layout(~{::content})}">
 
-<div>
+<div th:fragment="content">
 
     <h2 class="text-2xl font-semibold text-primary mb-6">Create Account</h2>
 
@@ -60,9 +60,6 @@
         </button>
     </form>
 
-</div>
-
-<!-- AJAX SCRIPT -->
 <script>
 document.getElementById("registerForm").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -79,9 +76,7 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
     try {
         const response = await fetch("http://localhost:8080/api/auth/register", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ nom, prenom, email, motDePasse, role })
         });
 
@@ -95,10 +90,7 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
         successBox.classList.remove("hidden");
         errorBox.classList.add("hidden");
 
-        // Redirect after 2 seconds
-        setTimeout(() => {
-            window.location.href = "/login";
-        }, 2000);
+        setTimeout(() => window.location.href = "/login", 2000);
 
     } catch (err) {
         errorBox.textContent = err.message;

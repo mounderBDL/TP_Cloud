@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      th:replace="layouts/base :: content">
+      th:replace="~{layouts/base :: layout(~{::content})}">
 
-<div>
+<div th:fragment="content">
+
+    <div>
 
     <h2 class="text-2xl font-semibold text-primary mb-6">Login</h2>
 
-    <!-- Error message -->
     <div id="errorBox" class="hidden mb-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded-md"></div>
 
-    <!-- Login Form -->
     <form id="loginForm" class="space-y-5">
 
         <div>
@@ -28,11 +28,17 @@
                 class="w-full bg-primary text-white py-3 rounded-lg hover:bg-indigo-700">
             Login
         </button>
+
+        <p class="text-right mt-2">
+            <a href="/forgot-password" class="text-primary hover:underline">
+                Forgot your password?
+            </a>
+        </p>
+
     </form>
 
 </div>
 
-<!-- AJAX LOGIN SCRIPT -->
 <script>
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -43,9 +49,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     try {
         const response = await fetch("http://localhost:8080/api/auth/login", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, motDePasse })
         });
 
@@ -55,13 +59,11 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
         const data = await response.json();
 
-        // Save JWT + user info in localStorage
         localStorage.setItem("jwt", data.token);
         localStorage.setItem("role", data.role);
         localStorage.setItem("nom", data.nom);
         localStorage.setItem("prenom", data.prenom);
 
-        // Redirect based on role
         if (data.role === "ADMIN") {
             window.location.href = "/admin/dashboard";
         } else {

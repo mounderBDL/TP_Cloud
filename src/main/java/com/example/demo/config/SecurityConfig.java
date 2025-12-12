@@ -28,7 +28,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(auth -> auth
             // PUBLIC WEBPAGES
-            .requestMatchers("/", "/home", "/login", "/register", "/css/**", "/js/**").permitAll()
+            .requestMatchers("/", "/home", "/login", "/register", "/css/**", "/js/**","/forgot-password","/reset-password").permitAll()
 
             // PUBLIC API
             .requestMatchers("/api/auth/**").permitAll()
@@ -37,9 +37,10 @@ public class SecurityConfig {
             // ROLE-BASED PERMISSIONS
             .requestMatchers("/api/demandes/create/**")
                 .hasAnyRole("GESTIONNAIRE", "TRAVAILLEUR", "ENSEIGNANT", "ETUDIANT")
-            .requestMatchers("/api/demandes/pending").hasRole("ADMIN")
-            .requestMatchers("/api/demandes/approve/**").hasRole("ADMIN")
-            .requestMatchers("/api/demandes/reject/**").hasRole("ADMIN")
+            .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+            .requestMatchers("/admin/**").permitAll()
+            .requestMatchers("/user/**").permitAll()
+
 
             // EVERYTHING ELSE AUTHENTICATED
             .anyRequest().authenticated()

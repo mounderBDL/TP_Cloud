@@ -7,43 +7,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:text="${title}">App</title>
 
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Tailwind Custom Config -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         primary: "#4F46E5",
-                        secondary: "#64748B",
+                        secondary: "#64748B"
                     }
                 }
             }
-        }
+        };
     </script>
 </head>
 
 <body class="bg-gray-100 min-h-screen">
 
-<!-- NAVBAR -->
 <nav class="bg-white shadow-md">
     <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
         <h1 class="text-xl font-bold text-primary">University Platform</h1>
 
         <div>
             <a href="/login" class="text-secondary hover:text-primary mx-3">Login</a>
-
-            <a href="/register"
-               class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+            <a href="/register" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
                 Register
             </a>
         </div>
     </div>
 </nav>
 
-<!-- MAIN CONTENT -->
 <main class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg">
     <div th:insert="${content}"></div>
 </main>

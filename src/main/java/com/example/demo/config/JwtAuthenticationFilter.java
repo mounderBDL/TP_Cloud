@@ -31,17 +31,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        // Skip JWT validation for public endpoints
-        if (path.startsWith("/api/auth/") ) {
+        // ===== IMPORTANT FIX =====
+        // Skip JWT validation for all FRONTEND pages
+        // Only protect /api/** endpoints
+        if (!path.startsWith("/api/")) {
             filterChain.doFilter(request, response);
             return;
         }
+        // =========================
 
         String authHeader = request.getHeader("Authorization");
         String email = null;
         String token = null;
 
-        // Validate JWT if Authorization header is present
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
 
@@ -50,7 +52,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // Authenticate if valid JWT and context is empty
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 

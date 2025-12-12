@@ -19,6 +19,8 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
 
     // For password reset
     Optional<Utilisateur> findByResetToken(String resetToken);
+
+    void deleteById(Long id);
 }
 
 
